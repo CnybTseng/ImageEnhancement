@@ -1,0 +1,11 @@
+{
+	"downsample":0.2,
+	"kmin_size":15,
+	"update_period":25,
+	"bright_ratio_thresh":0.1,
+	"atmo_light_ceiling":255,
+	"tran_thresh":0.1,
+	"omega":0.95,
+	"lowcut_thresh":0,
+	"highcut_thresh":0.01
+}

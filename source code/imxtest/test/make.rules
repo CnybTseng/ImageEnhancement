@@ -1,0 +1,96 @@
+ifdef VERBOSE
+	VERBOSE=
+else
+	VERBOSE=@
+endif
+CROSS_COMPILE=arm-buildroot-linux-uclibcgnueabi-
+
+AS		= $(CROSS_COMPILE)as
+LD		= $(CROSS_COMPILE)ld
+CC		= $(CROSS_COMPILE)gcc
+CPP		= $(CC) -E
+CXX             = $(CROSS_COMPILE)g++
+AR		= $(CROSS_COMPILE)ar
+NM		= $(CROSS_COMPILE)nm
+STRIP		= $(CROSS_COMPILE)strip
+OBJCOPY		= $(CROSS_COMPILE)objcopy
+OBJDUMP		= $(CROSS_COMPILE)objdump
+RM		= rm -f
+MAKEDIR		= mkdir -p
+
+CXXFLAGS 		+= -Wall -Wstrict-prototypes -Wno-trigraphs -O3 \
+                -fno-strict-aliasing -fno-common \
+           -I/home/zlttest/workspace/imx6/linux-imx-rel_imx_4.1.15_2.0.0_ga/include/uapi/ \
+           -I/home/zlttest/workspace/imx6/linux-imx-rel_imx_4.1.15_2.0.0_ga/include/ \
+           -I/home/zlttest/workspace/project/module/defog_interface
+
+LIBS            += -L/home/zlttest/workspace/imx6/build/rootfs_uClibc/usr/lib -lpthread -ljsoncpp -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -ldefog2
+
+AFLAGS         := -D__ASSEMBLY__
+
+$(OBJDIR)/%.o : $(SRCDIR)/%.c
+	@mkdir -p `dirname $@`
+	@echo "     Building $@"
+	$(VERBOSE)$(CXX) -c -g $(INC) $(CXXFLAGS) $< -o $@
+
+$(OBJDIR)/%.out : $(SRCDIR)/%.c
+	@mkdir -p `dirname $@`
+	@echo "     Building $@"
+	$(VERBOSE)$(CXX) -g $(INC) $(CXXFLAGS) $< $(LIBS) -o $@
+
+$(OBJDIR)/%.out : $(SRCDIR)/%.s
+	@mkdir -p `dirname $@`
+	@echo "     Building $@"
+	$(VERBOSE)$(CXX) -g $(INC) $(CXXFLAGS) -DASSEMBLER $< -o $@
+
+$(OBJDIR)/%.out : $(SRCDIR)/%.S
+	@mkdir -p `dirname $@`
+	@echo "     Building $@"
+	$(VERBOSE)$(CXX) -g  $(INC) $(CXXFLAGS) -DASSEMBLER $< -o $@
+
+$(OBJDIR)/%.out : ./%.c
+	@mkdir -p `dirname $@`
+	@echo "     Building $@"
+	$(VERBOSE)$(CXX) -g $(INC) $(CXXFLAGS) $< $(LIBS) -o $@
+
+$(OBJDIR)/%.out : ./%.S
+	@mkdir -p `dirname $@`
+	@echo "     Building $@"
+	$(VERBOSE)$(CXX) -g $(INC) $(CXXFLAGS) -DASSEMBLER $< -o $@
+
+$(OBJDIR)/% : ./%.c
+	@mkdir -p `dirname $@`
+	@echo "     Building $@"
+	$(VERBOSE)$(CXX) -g $(INC) $(CXXFLAGS) $< $(LIBS) -o $@
+
+$(OBJDIR)/%.d : %.c
+	$(VERBOSE)set -e; \
+	mkdir -p `dirname $@`; \
+	echo "Updating dependencies ..."; \
+	$(CXX) $(CXXFLAGS) -MM $(INC) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,$(OBJDIR)/\1.o $@ : ,g' < $@.$$$$ > $@; \
+	/bin/rm -f $@.$$$$
+
+$(OBJDIR)/%.sh : ./%.sh
+	$(VERBOSE)mkdir -p `dirname $@`
+	$(VERBOSE)echo "     Copying $< to $@"
+	$(VERBOSE)cp -af $< $@
+	$(VERBOSE)chmod u+x $@
+
+$(OBJDIR)/%.sh : %.sh
+	$(VERBOSE)mkdir -p `dirname $@`
+	$(VERBOSE)echo "     Copying $< to $@"
+	$(VERBOSE)cp -af $< $@
+	$(VERBOSE)chmod u+x $@
+
+$(OBJDIR)/%.bin : %.bin
+	$(VERBOSE)mkdir -p `dirname $@`
+	$(VERBOSE)echo "     Copying $< to $@"
+	$(VERBOSE)cp -af $< $@
+	$(VERBOSE)chmod u+x $@
+
+$(OBJDIR)/%.rgb : %.rgb
+	$(VERBOSE)mkdir -p `dirname $@`
+	$(VERBOSE)echo "     Copying $< to $@"
+	$(VERBOSE)cp -af $< $@
+
